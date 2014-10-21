@@ -42,8 +42,12 @@ public class PoemArrayAdapter extends ArrayAdapter<Poem> {
 
 		PoemType pType = poem.getType();
 
+		// 对于诗、词、文显示不同的图片
 		if (pType == PoemType.Shi)
 			imgLogo.setImageResource(R.drawable.shi);
+		else if (pType == PoemType.Qita) {
+			imgLogo.setImageResource(R.drawable.wen);
+		}
 		else {
 			imgLogo.setImageResource(R.drawable.ci);
 		}

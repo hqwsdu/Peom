@@ -171,8 +171,7 @@ public class MainActivity extends Activity implements OnGestureListener,
 				case ITEM_DELETE:// 文件管理
 					new AlertDialog.Builder(MainActivity.this)
 							.setIcon(android.R.drawable.ic_dialog_alert)
-							.setTitle("删除诗词")
-							.setMessage("确定要删除这首诗吗？")
+.setTitle("删除诗词").setMessage("确定要删除这首诗吗？")
 							.setPositiveButton("Yes",
 									new DialogInterface.OnClickListener() {
 										@Override
@@ -344,8 +343,7 @@ public class MainActivity extends Activity implements OnGestureListener,
 
 			new AlertDialog.Builder(this)
 					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle("删除诗词")
-					.setMessage("确定要删除这首诗吗？")
+.setTitle("删除诗词").setMessage("确定要删除这首诗吗？")
 					.setPositiveButton("Yes",
 							new DialogInterface.OnClickListener() {
 								@Override
@@ -535,8 +533,8 @@ public class MainActivity extends Activity implements OnGestureListener,
 			return;
 		}
 		tvContent.setScrollY(0);
-		String title = p.getType().equals(PoemType.Shi) ? p.getTitle() : p
-				.getCipai();
+		String title = p.getType().equals(PoemType.Ci) ? p.getCipai() : p
+				.getTitle();
 		cId = p.getId();
 		Log.d(DATABASE_TAG, "the displayed current poem id is:" + cId);
 		tvTitle.setText(title + "·" + p.getAuthor());

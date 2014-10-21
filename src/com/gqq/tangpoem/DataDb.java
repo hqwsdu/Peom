@@ -120,7 +120,7 @@ public class DataDb {
 		if (c.moveToNext()) {
 			int newId = c.getInt(c.getColumnIndex("id"));
 			int type = c.getInt(c.getColumnIndex("type"));
-			PoemType pType = 0 == type ? PoemType.Shi : PoemType.Ci;
+			PoemType pType = Common.getType(type);
 			String author = c.getString(c.getColumnIndex("author"));
 			String cipai = c.getString(c.getColumnIndex("cipai"));
 			String title = c.getString(c.getColumnIndex("title"));
@@ -176,7 +176,7 @@ public class DataDb {
 		while (c.moveToNext()) {
 			int id = c.getInt(c.getColumnIndex("id"));
 			int type = c.getInt(c.getColumnIndex("type"));
-			PoemType pType = 0 == type ? PoemType.Shi : PoemType.Ci;
+			PoemType pType = Common.getType(type);
 			String author = c.getString(c.getColumnIndex("author"));
 			String cipai = c.getString(c.getColumnIndex("cipai"));
 			String title = c.getString(c.getColumnIndex("title"));
