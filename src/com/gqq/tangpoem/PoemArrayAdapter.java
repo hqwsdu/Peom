@@ -3,6 +3,7 @@ package com.gqq.tangpoem;
 import java.util.*;
 
 import android.content.*;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
@@ -38,7 +39,6 @@ public class PoemArrayAdapter extends ArrayAdapter<Poem> {
 		Poem poem = poems.get(position);
 		txtAuthor.setText(poem.getAuthor());
 		txtTitle.setText(poem.getTitle());
-		// hidId.setText(poem.getId());
 
 		PoemType pType = poem.getType();
 
@@ -47,11 +47,11 @@ public class PoemArrayAdapter extends ArrayAdapter<Poem> {
 			imgLogo.setImageResource(R.drawable.shi);
 		else if (pType == PoemType.Qita) {
 			imgLogo.setImageResource(R.drawable.wen);
-		}
-		else {
+		} else {
 			imgLogo.setImageResource(R.drawable.ci);
 		}
 
 		return rowView;
 	}
+
 }

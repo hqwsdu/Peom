@@ -36,7 +36,6 @@ public class ListPoemActivity extends ListActivity {
 		// Toast.LENGTH_SHORT).show();
 		// }
 		// });
-
 	}
 
 	@Override
@@ -45,8 +44,7 @@ public class ListPoemActivity extends ListActivity {
 		Log.d("Fanshe", "l" + l.getClass().getName());
 		Log.d("Fanshe", "v" + v.getClass().getName());
 		Poem poem = (Poem) getListAdapter().getItem(position);
-		// Toast.makeText(this, poem.getTitle() + poem.getId(),
-		// Toast.LENGTH_SHORT).show();
+
 		Intent intent = new Intent();
 		// 通过Intent对象返回结果，调用setResult方法
 		intent.putExtra("selectedPoemId", poem.getId());
