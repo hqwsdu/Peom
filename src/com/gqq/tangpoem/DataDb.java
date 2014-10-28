@@ -27,8 +27,7 @@ public class DataDb {
 
 	public void openDB() {
 		if (null != db)
-			SQLiteDatabase.openDatabase(path, null,
-					SQLiteDatabase.CREATE_IF_NECESSARY);
+			SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.CREATE_IF_NECESSARY);
 	}
 
 	public int[] getMaxMinId() {
@@ -53,9 +52,8 @@ public class DataDb {
 		}
 
 		try {
-			String sql = "SELECT * from " + DATA_TABLE_NAME
-					+ " where `status`=1 and id=" + id;
-			Log.d(MainActivity.DATABASE_TAG, sql);
+			String sql = "SELECT * from " + DATA_TABLE_NAME + " where `status`=1 and id=" + id;
+			Log.d(MainActivity.TAG_DATABASE, sql);
 			Cursor c = db.rawQuery(sql, null);
 			return genPoem(c);
 		} catch (Exception e) {
@@ -72,10 +70,8 @@ public class DataDb {
 			return getPoem(ids[1]);
 
 		try {
-			String sql = "SELECT * from " + DATA_TABLE_NAME
-					+ " where `status`=1 and id>" + id
-					+ " order by id limit 1;";
-			Log.d(MainActivity.DATABASE_TAG, sql);
+			String sql = "SELECT * from " + DATA_TABLE_NAME + " where `status`=1 and id>" + id + " order by id limit 1;";
+			Log.d(MainActivity.TAG_DATABASE, sql);
 			Cursor c = db.rawQuery(sql, null);
 			return genPoem(c);
 		} catch (Exception e) {
@@ -92,10 +88,8 @@ public class DataDb {
 
 		try {
 
-			String sql = "SELECT * from " + DATA_TABLE_NAME
-					+ " where `status`=1 and id<" + id
-					+ " order by id desc limit 1;";
-			Log.d(MainActivity.DATABASE_TAG, sql);
+			String sql = "SELECT * from " + DATA_TABLE_NAME + " where `status`=1 and id<" + id + " order by id desc limit 1;";
+			Log.d(MainActivity.TAG_DATABASE, sql);
 
 			Cursor c = db.rawQuery(sql, null);
 			return genPoem(c);
@@ -126,22 +120,56 @@ public class DataDb {
 			String title = c.getString(c.getColumnIndex("title"));
 			String content = c.getString(c.getColumnIndex("content"));
 			String comment = c.getString(c.getColumnIndex("comment"));
-			shiCi = new Poem(newId, pType, author, cipai, title, content,
-					comment);
+			shiCi = new Poem(newId, pType, author, cipai, title, content, comment);
 		}
 		db.close();
 		return shiCi;
 	}
 
 	/**
-	 * 取得所有的诗词
+	 * 取得所有的诗词文
 	 * 
 	 * @return 诗词列表
 	 */
-	public List<Poem> getAllPoems() {
+	public List<Poem> getAll() {
 
-		String sql = "SELECT * from " + DATA_TABLE_NAME
-				+ " where `status` = 1;";
+		String sql = "SELECT * from " + DATA_TABLE_NAME + " where `status` = 1;";
+		return getPoemFromSql(sql);
+
+	}
+
+	/**
+	 * 取得所有的诗
+	 * 
+	 * @return 诗词列表
+	 */
+	public List<Poem> getPoems() {
+
+		String sql = "SELECT * from " + DATA_TABLE_NAME + " where `type`=0 and `status` = 1;";
+		return getPoemFromSql(sql);
+
+	}
+
+	/**
+	 * 取得所有的词
+	 * 
+	 * @return 诗词列表
+	 */
+	public List<Poem> getSongs() {
+
+		String sql = "SELECT * from " + DATA_TABLE_NAME + " where `type`=1 and `status` = 1;";
+		return getPoemFromSql(sql);
+
+	}
+
+	/**
+	 * 取得所有的文
+	 * 
+	 * @return 诗词列表
+	 */
+	public List<Poem> getEssays() {
+
+		String sql = "SELECT * from " + DATA_TABLE_NAME + " where `type`=9 and `status` = 1;";
 		return getPoemFromSql(sql);
 
 	}
@@ -153,8 +181,7 @@ public class DataDb {
 	 */
 	public List<Poem> getAllDeletedPoems() {
 
-		String sql = "SELECT * from " + DATA_TABLE_NAME
-				+ " where `status` = 99;";
+		String sql = "SELECT * from " + DATA_TABLE_NAME + " where `status` = 99;";
 		return getPoemFromSql(sql);
 	}
 
@@ -165,8 +192,7 @@ public class DataDb {
 	 */
 	public List<Poem> getAllFamiliarPoems() {
 
-		String sql = "SELECT * from " + DATA_TABLE_NAME
-				+ " where `status` = 0;";
+		String sql = "SELECT * from " + DATA_TABLE_NAME + " where `status` = 0;";
 		return getPoemFromSql(sql);
 	}
 
@@ -182,8 +208,7 @@ public class DataDb {
 			String title = c.getString(c.getColumnIndex("title"));
 			String content = c.getString(c.getColumnIndex("content"));
 			String comment = c.getString(c.getColumnIndex("comment"));
-			Poem shiCi = new Poem(id, pType, author, cipai, title, content,
-					comment);
+			Poem shiCi = new Poem(id, pType, author, cipai, title, content, comment);
 			list.add(shiCi);
 		}
 		db.close();
@@ -205,11 +230,9 @@ public class DataDb {
 	 *            诗词内容
 	 * @return 是否插入成功
 	 */
-	public int insertPoem(int type, String author, String title,
-			String cipai, String content) {
-		String sql = "insert into " + DATA_TABLE_NAME
-				+ " (`status`, type, author,cipai,title, comment, content) values (1, "
-				+ type + ", '" + author + "',";
+	public int insertPoem(int type, String author, String title, String cipai, String content) {
+		String sql = "insert into " + DATA_TABLE_NAME + " (`status`, type, author,cipai,title, comment, content) values (1, " + type + ", '" + author
+				+ "',";
 		sql += "'" + cipai + "',";
 		sql += "'" + title + "',";
 		sql += "'" + "暂时无注释！" + "',";
@@ -244,10 +267,8 @@ public class DataDb {
 	 *            诗词内容
 	 * @return 是否插入成功
 	 */
-	public boolean updatePoem(int id, int type, String author, String title,
-			String cipai, String content) {
-		String sql = "update " + DATA_TABLE_NAME + " set `type`=" + type
-				+ ", author='" + author;
+	public boolean updatePoem(int id, int type, String author, String title, String cipai, String content) {
+		String sql = "update " + DATA_TABLE_NAME + " set `type`=" + type + ", author='" + author;
 		sql += "', title='" + title;
 		sql += "', cipai='" + cipai;
 		sql += "', content='" + content;
@@ -275,7 +296,7 @@ public class DataDb {
 	 *            评论
 	 * @return
 	 */
-	public boolean updatePoemComment(int id ,String cm) {
+	public boolean updatePoemComment(int id, String cm) {
 		String sql = "update " + DATA_TABLE_NAME + " set `comment`='" + cm;
 		sql += "' where id=" + id;
 
@@ -300,9 +321,8 @@ public class DataDb {
 	 * @return
 	 */
 	public boolean delPoem(int id) {
-		String sql = "update " + DATA_TABLE_NAME
-				+ " set `status` = 99 where id = " + id;
-		Log.d(MainActivity.DATABASE_TAG, sql);
+		String sql = "update " + DATA_TABLE_NAME + " set `status` = 99 where id = " + id;
+		Log.d(MainActivity.TAG_DATABASE, sql);
 		try {
 			db.execSQL(sql);
 			db.close();

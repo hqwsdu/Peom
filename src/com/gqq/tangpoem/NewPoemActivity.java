@@ -68,7 +68,7 @@ public class NewPoemActivity extends Activity implements OnClickListener {
 		edtAuthor.setText(poem.getAuthor());
 		if (poem.getType() == PoemType.Shi) {
 			rdoTangshi.setChecked(true);
-		} else if (poem.getType() == PoemType.Qita) {
+		} else if (poem.getType() == PoemType.Wen) {
 			rdoQita.setChecked(true);
 		} else {
 			rdoSongci.setChecked(true);
