@@ -1,8 +1,10 @@
 package com.gqq.tangpoem;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import android.R.anim;
 import android.annotation.SuppressLint;
@@ -13,6 +15,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnKeyListener;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -80,6 +84,29 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 
 	}
 
+	@SuppressLint("HandlerLeak")
+	private Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case BACKUP_DB_SUC:
+				T.showLong(MainActivity.this, "备份诗词完成！");
+				break;
+			case BACKUP_DB_FAIL:
+				T.showLong(MainActivity.this, errorMsg);
+				break;
+			case RESTORE_DB_SUC:
+				T.showLong(MainActivity.this, "还原诗词完成！");
+				break;
+			case RESTORE_DB_FAIL:
+				T.showLong(MainActivity.this, errorMsg);
+				break;
+			default:
+				break;
+			}
+		};
+	};
+
 	private TextView tvContent;
 	private TextView tvTitle;
 
@@ -97,6 +124,10 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 	public static final int INSERT_POEM_SUCCESS = 2;
 	public static final int POEM_MODIFY = 4;
 	public static final int POEM_ADD_MSG = 5;
+	public static final int BACKUP_DB_SUC = 0;
+	public static final int BACKUP_DB_FAIL = 1;
+	public static final int RESTORE_DB_SUC = 2;
+	public static final int RESTORE_DB_FAIL = 3;
 
 	private int w_screen;
 	private int h_screen;
@@ -106,6 +137,8 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 	private int cId;
 	private Poem cPoem;
 	private boolean isInsecondItem = false;
+
+	private String errorMsg = null;
 
 	private AlertDialog menuDialog;// menu菜单Dialog
 	private GridView menuGrid;
@@ -139,7 +172,7 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 
 		initmenu();
 	}
-
+	
 	/**
 	 * 初始化Menu菜单
 	 */
@@ -164,8 +197,8 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 		/** 监听menu选项 **/
 		menuGrid.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				Log.d(TAG_REFLECTION, "arg1:" + arg1.getClass().getName());
-				Log.d(TAG_REFLECTION, "arg0:" + arg0.getClass().getName());
+				// Log.d(TAG_REFLECTION, "arg1:" + arg1.getClass().getName());
+				// Log.d(TAG_REFLECTION, "arg0:" + arg0.getClass().getName());
 				if (!isInsecondItem) {
 					switch (arg2) {
 					case ITEM_ADD:// 添加
@@ -176,7 +209,7 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 						break;
 					case ITEM_DELETE:// 文件管理
 						new AlertDialog.Builder(MainActivity.this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("删除诗词")
-								.setMessage("确定要删除这首诗吗？").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+								.setMessage("确定要删除这首诗吗？").setPositiveButton("是", new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
 										DataDb poemdb = new DataDb(getBaseContext(), PoemApplication.POEMDB);
@@ -187,7 +220,7 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 										}
 									}
 
-								}).setNegativeButton("No", null).show();
+								}).setNegativeButton("否", null).show();
 						break;
 					case ITEM_CONTENT:// 目录
 						Intent i2 = new Intent(MainActivity.this, ListPoemActivity.class);
@@ -206,8 +239,40 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 				} else {
 					switch (arg2) {
 					case ITEM_BACKUP:
+						new Thread() {
+
+							@Override
+							public void run() {
+								try {
+									PoemApplication.backupDB();
+								} catch (IOException e) {
+									errorMsg = e.getMessage();
+									mHandler.sendEmptyMessage(BACKUP_DB_FAIL);
+								}
+								mHandler.sendEmptyMessage(BACKUP_DB_SUC);
+							};
+						}.start();
 						break;
 					case ITEM_RESTORE:
+						new AlertDialog.Builder(MainActivity.this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("还原诗词")
+								.setMessage("确定要替换为第一次备份的诗词版本吗？").setPositiveButton("是", new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										new Thread() {
+											@Override
+											public void run() {
+												try {
+													PoemApplication.restoreDB();
+												} catch (IOException e) {
+													errorMsg = e.getMessage();
+													mHandler.sendEmptyMessage(RESTORE_DB_FAIL);
+												}
+												mHandler.sendEmptyMessage(RESTORE_DB_SUC);
+											};
+										}.start();
+									}
+
+								}).setNegativeButton("否", null).show();
 						break;
 					case ITEM_RETURN:
 						menuGrid.setAdapter(getMenuAdapter(menu_name_array, menu_image_array));
