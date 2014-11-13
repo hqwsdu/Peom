@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="top"
-            android:textColor="#A7B122"
+            android:textColor="#CFBFAD"
             android:textSize="28sp" />
 
         <EditText
