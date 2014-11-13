@@ -4,7 +4,13 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import com.umeng.socialize.bean.SHARE_MEDIA;
+import com.umeng.socialize.controller.UMServiceFactory;
+import com.umeng.socialize.controller.UMSocialService;
+import com.umeng.socialize.media.UMImage;
 
 import android.R.anim;
 import android.annotation.SuppressLint;
@@ -14,9 +20,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnKeyListener;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -37,6 +46,7 @@ import android.widget.GridView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnGestureListener, OnTouchListener {
 
@@ -110,6 +120,7 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 	private TextView tvContent;
 	private TextView tvTitle;
 
+	private static final String APK_URL = "http://gqqapp.sinaapp.com/TangPoem.apk";
 	private static final String TAG_REFLECTION = "Reflection";
 	public static final String TAG_PRESS = "TAG_PRESS";
 	public static final String TAG_DATABASE = "DataBase";
@@ -151,15 +162,17 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 	private final int ITEM_MORE = 4;// 修改
 	private final int ITEM_BACKUP = 0;// 备份
 	private final int ITEM_RESTORE = 1;// 还原
-	private final int ITEM_RETURN = 2;// 返回
+	private final int ITEM_SHARE = 2;// 还原
+	private final int ITEM_RETURN = 3;// 返回
 
 	/** 菜单图片 **/
-	int[] menu_image_array = { android.R.drawable.ic_menu_add, android.R.drawable.ic_menu_delete, android.R.drawable.ic_menu_info_details,
-			android.R.drawable.ic_menu_edit, android.R.drawable.ic_menu_more };
-	int[] menu_image_array2 = { android.R.drawable.ic_menu_gallery, android.R.drawable.ic_menu_manage, android.R.drawable.ic_menu_revert };
+	int[] menu_image_array = { android.R.drawable.ic_menu_add, android.R.drawable.ic_menu_delete,
+			android.R.drawable.ic_menu_info_details, android.R.drawable.ic_menu_edit, android.R.drawable.ic_menu_more };
+	int[] menu_image_array2 = { android.R.drawable.ic_menu_gallery, android.R.drawable.ic_menu_manage,
+			android.R.drawable.ic_menu_share, android.R.drawable.ic_menu_revert };
 	/** 菜单文字 **/
 	String[] menu_name_array = { "添加", "删除", "目录", "修改", "更多" };
-	String[] menu_name_array2 = { "备份", "还原", "返回" };
+	String[] menu_name_array2 = { "备份", "还原", "分享", "返回" };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -172,7 +185,7 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 
 		initmenu();
 	}
-	
+
 	/**
 	 * 初始化Menu菜单
 	 */
@@ -208,8 +221,9 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 						startActivityForResult(i, 1);
 						break;
 					case ITEM_DELETE:// 文件管理
-						new AlertDialog.Builder(MainActivity.this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("删除诗词")
-								.setMessage("确定要删除这首诗吗？").setPositiveButton("是", new DialogInterface.OnClickListener() {
+						new AlertDialog.Builder(MainActivity.this).setIcon(android.R.drawable.ic_dialog_alert)
+								.setTitle("删除诗词").setMessage("确定要删除这首诗吗？")
+								.setPositiveButton("是", new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
 										DataDb poemdb = new DataDb(getBaseContext(), PoemApplication.POEMDB);
@@ -254,8 +268,9 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 						}.start();
 						break;
 					case ITEM_RESTORE:
-						new AlertDialog.Builder(MainActivity.this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("还原诗词")
-								.setMessage("确定要替换为第一次备份的诗词版本吗？").setPositiveButton("是", new DialogInterface.OnClickListener() {
+						new AlertDialog.Builder(MainActivity.this).setIcon(android.R.drawable.ic_dialog_alert)
+								.setTitle("还原诗词").setMessage("确定要替换为第一次备份的诗词版本吗？")
+								.setPositiveButton("是", new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
 										new Thread() {
@@ -273,6 +288,99 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 									}
 
 								}).setNegativeButton("否", null).show();
+						break;
+					case ITEM_SHARE:
+						// umeng 的分享还是有问题
+						// // 首先在您的Activity中添加如下成员变量
+						// final UMSocialService mController =
+						// UMServiceFactory.getUMSocialService("com.umeng.share");
+						// mController.getConfig().setPlatforms(SHARE_MEDIA.WEIXIN,
+						// SHARE_MEDIA.WEIXIN_CIRCLE,
+						// SHARE_MEDIA.QQ, SHARE_MEDIA.QZONE, SHARE_MEDIA.SINA,
+						// SHARE_MEDIA.TENCENT,
+						// SHARE_MEDIA.DOUBAN, SHARE_MEDIA.RENREN);
+						// // 设置分享内容
+						// mController.setShareContent("友盟社会化组件（SDK）让移动应用快速整合社交分享功能，http://www.umeng.com/social");
+						// mController.openShare(MainActivity.this, false);
+
+						// tvContent
+
+						String contentDetails = "content details";
+						String contentBrief = "ddd";
+						String shareUrl = "www.baidu.com";
+						Intent intent = new Intent(Intent.ACTION_SEND);
+						intent.setType("text/plain");
+						// intent.setPackage("com.tencent.mm");
+						// intent.setPackage("com.sina.weibo");
+						// intent.putExtra(Intent.EXTRA_SUBJECT, "分享");
+						// intent.putExtra(Intent.EXTRA_TEXT, "你好 ");
+						// intent.putExtra(Intent.EXTRA_TITLE, "我是标题");
+						// intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						// startActivity(Intent.createChooser(intent, "请选择"));
+
+						List<ResolveInfo> resInfo = getPackageManager().queryIntentActivities(intent, 0);
+						if (!resInfo.isEmpty()) {
+							List<Intent> targetedShareIntents = new ArrayList<Intent>();
+							for (ResolveInfo info : resInfo) {
+								Intent targeted = new Intent(Intent.ACTION_SEND);
+								targeted.setType("text/plain");
+								ActivityInfo activityInfo = info.activityInfo;
+								Log.d("package", String.format("packageName:%s,name:%s", activityInfo.packageName,
+										activityInfo.name));
+
+								// judgments : activityInfo.packageName,
+								// activityInfo.name, etc.
+								if (activityInfo.packageName.contains("bluetooth")
+										|| activityInfo.packageName.contains("android.mms")
+										|| activityInfo.packageName.contains("sec.android.app.FileShareClient")
+										|| activityInfo.packageName.contains("bluecrane.calendar")
+										|| activityInfo.packageName.contains("alibaba.mobileim")
+										|| activityInfo.packageName.contains("renren.mobile.android")
+										|| activityInfo.packageName.contains("com.skype.rove")
+										|| activityInfo.packageName.contains("om.evernote")
+										|| activityInfo.packageName.contains("om.evernote")
+										|| activityInfo.packageName.contains("tencent.qqpimsecure")
+										|| activityInfo.packageName.contains("tencent.mm")
+										|| activityInfo.packageName.contains("tencent.mobile")
+										|| activityInfo.packageName.contains("baidu.netdisk")
+
+								) {
+									continue;
+								}
+
+								targeted.putExtra(Intent.EXTRA_TITLE, tvTitle.getText().toString());
+								String poem_contentString = tvContent.getText().toString();
+								String content = poem_contentString.length() > 110 ? poem_contentString.substring(0,
+										110) : poem_contentString;
+								content = String.format("%s...来自诗词精选，下载网址：%s", content, APK_URL);
+								targeted.putExtra(Intent.EXTRA_TEXT, content);
+								targeted.setPackage(activityInfo.packageName);
+								targetedShareIntents.add(targeted);
+							}
+
+							Intent chooserIntent = Intent.createChooser(targetedShareIntents.remove(0),
+									"Select app to share");
+							if (chooserIntent == null) {
+								return;
+							}
+
+							// A Parcelable[] of Intent or LabeledIntent objects
+							// as set with
+							// putExtra(String, Parcelable[]) of additional
+							// activities to place
+							// a the front of the list of choices, when shown to
+							// the user with a
+							// ACTION_CHOOSER.
+							chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
+									targetedShareIntents.toArray(new Parcelable[] {}));
+
+							try {
+								startActivity(chooserIntent);
+							} catch (android.content.ActivityNotFoundException ex) {
+								Toast.makeText(MainActivity.this, "Can't find share component to share",
+										Toast.LENGTH_SHORT).show();
+							}
+						}
 						break;
 					case ITEM_RETURN:
 						menuGrid.setAdapter(getMenuAdapter(menu_name_array, menu_image_array));
@@ -318,8 +426,8 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 			map.put("itemText", menuNameArray[i]);
 			data.add(map);
 		}
-		SimpleAdapter simperAdapter = new SimpleAdapter(this, data, R.layout.item_menu, new String[] { "itemImage", "itemText" }, new int[] {
-				R.id.item_image, R.id.item_text });
+		SimpleAdapter simperAdapter = new SimpleAdapter(this, data, R.layout.item_menu, new String[] { "itemImage",
+				"itemText" }, new int[] { R.id.item_image, R.id.item_text });
 		return simperAdapter;
 	}
 
@@ -416,8 +524,8 @@ public class MainActivity extends Activity implements OnGestureListener, OnTouch
 			return false;
 		} else if (R.id.action_del == id) {
 
-			new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("删除诗词").setMessage("确定要删除这首诗吗？")
-					.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("删除诗词")
+					.setMessage("确定要删除这首诗吗？").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							DataDb poemdb = new DataDb(getBaseContext(), PoemApplication.POEMDB);
