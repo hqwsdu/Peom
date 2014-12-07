@@ -2,3 +2,5 @@
 *.lnk
 bin
 bin2
+
+gen/
